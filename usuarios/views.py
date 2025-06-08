@@ -14,7 +14,6 @@ def login(request):
     usuario = get_object_or_404(Usuario, usuario=request.data['usuario'])
     if not usuario.check_password(request.data['password']):
         return Response({"error":"Contraseña invalida"}, status=status.HTTP_400_BAD_REQUEST)
-    
     token, created = Token.objects.get_or_create(user=usuario)
     serializer = UserSerializer(instance=usuario)
 
@@ -38,8 +37,16 @@ def register(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    usuario = get_object_or_404(Usuario, usuario=request.data['usuario'])
+    usuario = request.user
     serializer = UserSerializer(instance=usuario)
-    return Response("You are login witch {}"
-                    .format(serializer.data), 
+    data = serializer.data
+    # Solo enviar usuario y email
+    filtered_data = {
+        "usuario": data.get("usuario"),
+        "email": data.get("email"),
+        "nombre": data.get("nombre"),
+        "apellido": data.get("apellido"),
+        "rol": data.get("rol"),
+    }
+    return Response(filtered_data, 
                     status=status.HTTP_200_OK)

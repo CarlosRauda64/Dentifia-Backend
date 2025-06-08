@@ -1,2 +1,25 @@
-db.sqlite3
+# Entorno virtual
 env/
+venv/
+
+# Base de datos SQLite
+db.sqlite3
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Archivos de configuración de VSCode
+.vscode/
+
+# Archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de migraciones (opcional, si no quieres versionarlas)
+# */migrations/*.py
+# */migrations/*.pyc
+
+# Archivos de logs
+*.log
