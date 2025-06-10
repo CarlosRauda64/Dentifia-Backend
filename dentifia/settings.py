@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from corsheaders.defaults import default_methods 
 from corsheaders.defaults import default_headers
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'usuarios',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'django_extensions',
 ]
 
@@ -145,3 +147,22 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
 ]
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),     # Token válido 5 minutos
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),       # Token de refresco válido 1 día
+    'ROTATE_REFRESH_TOKENS': False,                    # Si es True, cambia el token de refresco cada vez que se use
+    'BLACKLIST_AFTER_ROTATION': True,                  # Invalida el token viejo si se rota
+    'AUTH_HEADER_TYPES': ('Bearer',),                  # Tipo de cabecera: "Authorization: Bearer <token>"
+    'USER_ID_FIELD': 'id',                             # Campo del modelo de usuario que se usa como ID
+    'USER_ID_CLAIM': 'user_id',                        # Nombre del campo en el token que contiene el ID del usuario
+}
+
