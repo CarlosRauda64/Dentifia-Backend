@@ -22,14 +22,14 @@ def login(request):
                     status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-def register(request):
+def crear(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         user = Usuario.objects.get(usuario=serializer.data['usuario'])
         user.set_password(serializer.data['password'])
         user.save()
-        return Response({"usuario": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"usuario": serializer.data.get("usuario")}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -48,6 +48,24 @@ def profile(request):
     }
     return Response(filtered_data, 
                     status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_usuarios(request):
+    usuarios = Usuario.objects.all()
+    serializer = UserSerializer(instance=usuarios, many=True)
+    data = serializer.data
+    filtered_data = []
+    for user in data:
+        filtered_data.append({
+            "id": user.get("id"),
+            "usuario": user.get("usuario"),
+            "email": user.get("email"),
+            "nombre": user.get("nombre"),
+            "apellido": user.get("apellido"),
+            "rol": user.get("rol"),
+        })
+    return Response(filtered_data, status=status.HTTP_200_OK)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer 
