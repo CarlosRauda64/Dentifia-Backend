@@ -12,6 +12,7 @@ router.register('api_usuarios', views.UsuarioViewSet, basename='usuarios')
 urlpatterns = [
     path('login', views.login),
     path('crear', views.crear),
+    path('editar/<int:id>', views.editar_usuario),
     path('profile', views.profile),
     path('listar_usuarios', views.listar_usuarios),
     path('token', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),

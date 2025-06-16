@@ -54,6 +54,22 @@ def crear(request):
         return Response({"usuario": serializer.data.get("usuario")}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PUT'])
+@permission_classes([permissions.IsAuthenticated])
+def editar_usuario(request, id):
+    usuario = get_object_or_404(Usuario, id=id)
+    request_data = request.data.copy()
+    if 'password' in request_data and request_data['password'].strip() == '':
+        request_data.pop('password')
+    serializer = UserSerializer(usuario, data=request_data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        user = Usuario.objects.get(usuario=serializer.data['usuario'])
+        user.set_password(serializer.data['password'])
+        user.save()
+        return Response({"response": "Usuario editado correctamente"}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 """ Listar usuarios registrados. """
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -73,6 +89,7 @@ def listar_usuarios(request):
         })
     return Response(filtered_data, status=status.HTTP_200_OK)
 
+""" ViewSet para manejar las operaciones CRUD de Usuario, menos el insertar. """
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UserSerializer
