@@ -60,14 +60,16 @@ def crear(request):
 def editar_usuario(request, id):
     usuario = get_object_or_404(Usuario, id=id)
     request_data = request.data.copy()
+    nueva_password = request_data.get('password', '').strip()
     if 'password' in request_data and request_data['password'].strip() == '':
         request_data.pop('password')
     serializer = UserSerializer(usuario, data=request_data, partial=True)
     if serializer.is_valid():
-        serializer.save()
-        user = Usuario.objects.get(usuario=serializer.data['usuario'])
-        user.set_password(serializer.data['password'])
-        user.save()
+        serializer.save()    
+        if nueva_password:
+            user = Usuario.objects.get(usuario=serializer.data['usuario'])
+            user.set_password(nueva_password)
+            user.save()
         return Response({"response": "Usuario editado correctamente"}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
