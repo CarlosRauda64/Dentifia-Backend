@@ -29,6 +29,7 @@ def profile(request):
     data = serializer.data
     # Solo enviar usuario y email
     filtered_data = {
+        "id": data.get("id"),
         "usuario": data.get("usuario"),
         "email": data.get("email"),
         "nombre": data.get("nombre"),
