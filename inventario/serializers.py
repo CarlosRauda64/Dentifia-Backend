@@ -9,4 +9,4 @@ class InsumoSerializer(serializers.ModelSerializer):
 class Movimiento_stockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento_stock
-        fields= ('tipo','fecha','cantidad')
+        fields= ('tipo','fecha','cantidad','insumo','usuario','nombre_usuario','rol_usuario','activo')
