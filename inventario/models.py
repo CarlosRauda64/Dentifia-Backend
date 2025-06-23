@@ -6,6 +6,7 @@ class Insumo(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=256)
     stock_actual = models.IntegerField(default=0)
+    activo = models.BooleanField(default=True)
 
 class Movimiento_stock(models.Model):
     tipo = models.CharField(max_length=10)

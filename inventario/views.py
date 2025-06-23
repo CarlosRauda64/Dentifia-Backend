@@ -10,9 +10,20 @@ from rest_framework.decorators import authentication_classes, permission_classes
 
 # Create your views here.
 class InsumoViewSet(viewsets.ModelViewSet):
-   
-    queryset = Insumo.objects.all()
+    """
+    ViewSet para manejar el CRUD de Insumos.
+    - La lista (GET) solo muestra insumos activos.
+    - La eliminación (DELETE) es un borrado lógico (cambia activo a False).
+    """
+    queryset = Insumo.objects.filter(activo=True)
     serializer_class = InsumoSerializer
+
+    def perform_destroy(self, instance):
+        """
+        Realiza un borrado lógico en lugar de físico.
+        """
+        instance.activo = False
+        instance.save()
 
 class MovimientoStockViewSet(viewsets.ModelViewSet):
     """ permission_classes = permissions.IsAuthenticated """
