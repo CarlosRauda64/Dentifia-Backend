@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-*5h3)2!&cd#_3l^r8j!44lk7()$0%^tzd#66e)4jxw9_60c_((')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.onrender.com']
 
 
 # Application definition
@@ -139,7 +139,7 @@ STATIC_URL = 'static/'
 if not DEBUG:
     # Archivos estáticos en producción
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
