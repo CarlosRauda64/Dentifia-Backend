@@ -4,9 +4,9 @@ from .models import Insumo,Movimiento_stock
 class InsumoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Insumo
-        fields = ('nombre','descripcion','stock_actual')
+        fields = ('id','nombre','descripcion','stock_actual')
 
 class Movimiento_stockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento_stock
-        fields= ('tipo','fecha','cantidad','insumo','usuario','nombre_usuario','rol_usuario','activo')
+        fields= ('id','tipo','fecha','cantidad','insumo','usuario','nombre_usuario','rol_usuario','activo')
