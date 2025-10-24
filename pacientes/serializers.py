@@ -54,7 +54,20 @@ class PacienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("La fecha de nacimiento debe ser posterior a 1900")
         return value
     
+    def create(self, validated_data):
+        """Crear paciente con datos médicos"""
+        datos_medicos = validated_data.pop('datos_medicos', {})
+        paciente = Paciente.objects.create(**validated_data)
+        
+        # Actualizar datos médicos si se proporcionaron y no están vacíos
+        if datos_medicos and any(value for value in datos_medicos.values() if value):
+            paciente.datos_medicos.update(datos_medicos)
+            paciente.save()
+        
+        return paciente
+    
     def update(self, instance, validated_data):
+        """Actualizar paciente con datos médicos"""
         datos_medicos = validated_data.pop('datos_medicos', None)
         if datos_medicos is not None:
             # Actualizar solo los campos proporcionados
