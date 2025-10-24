@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'usuarios',
     'inventario',
     'facturacion',
+    'encuestas',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
