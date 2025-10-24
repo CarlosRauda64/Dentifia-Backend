@@ -80,3 +80,4 @@ class PacienteListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paciente
         fields = ['id', 'nombres', 'apellidos', 'nombre_completo', 'dui', 'telefono', 'celular', 'email', 'edad', 'activo', 'created_at']
+
