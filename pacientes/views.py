@@ -75,3 +75,17 @@ class PacienteViewSet(viewsets.ModelViewSet):
             serializer = PacienteListSerializer(queryset, many=True)
             return Response(serializer.data)
         return Response([])
+    
+    @action(detail=False, methods=['get'])
+    def busqueda_rapida(self, request):
+        """Búsqueda rápida para autocompletado (nombre, apellido, DUI)"""
+        query = request.query_params.get('q', '')
+        if len(query) >= 2:  # Mínimo 2 caracteres
+            pacientes = self.get_queryset().filter(
+                Q(nombres__icontains=query) |
+                Q(apellidos__icontains=query) |
+                Q(dui__icontains=query)
+            )[:10]  # Limitar a 10 resultados
+            serializer = PacienteListSerializer(pacientes, many=True)
+            return Response(serializer.data)
+        return Response([])

@@ -10,10 +10,16 @@ class DetalleFacturaSerializer(serializers.ModelSerializer):
 
 class FacturaSerializer(serializers.ModelSerializer):
     detalles = DetalleFacturaSerializer(many=True)
-
+    paciente_nombre = serializers.SerializerMethodField()  # Para mostrar nombre
+    
     class Meta:
         model = Factura
         fields = '__all__'
+    
+    def get_paciente_nombre(self, obj):
+        if obj.paciente:
+            return obj.paciente.nombre_completo
+        return None
 
     def create(self, validated_data):
         detalles_data = validated_data.pop('detalles', [])
