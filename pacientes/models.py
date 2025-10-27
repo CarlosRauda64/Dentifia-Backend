@@ -5,7 +5,7 @@ def default_datos_medicos():
     return {
         "alergias": "",
         "medicamentos": "",
-        "ultimaVisita": None,
+        "ultimaVisita": "",
         "nombreDentistaAnterior": "",
         "numeroDentistaAnterior": "",
         "recomendadorDeClinica": "",

@@ -5,7 +5,7 @@ from .models import Paciente
 class DatosMedicosSerializer(serializers.Serializer):
     alergias = serializers.CharField(allow_blank=True, required=False)
     medicamentos = serializers.CharField(allow_blank=True, required=False)
-    ultimaVisita = serializers.DateField(allow_null=True, required=False)
+    ultimaVisita = serializers.CharField(allow_blank=True, required=False)
     nombreDentistaAnterior = serializers.CharField(allow_blank=True, required=False)
     numeroDentistaAnterior = serializers.CharField(allow_blank=True, required=False)
     recomendadorDeClinica = serializers.CharField(allow_blank=True, required=False)
