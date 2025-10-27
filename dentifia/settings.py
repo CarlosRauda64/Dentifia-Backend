@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'inventario',
     'facturacion',
     'pacientes',
+    'expediente',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -166,7 +167,7 @@ REST_FRAMEWORK = {
 
 # JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),     # Token válido 5 minutos
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),     # Token válido 5 minutos
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),       # Token de refresco válido 1 día
     'ROTATE_REFRESH_TOKENS': False,                    # Si es True, cambia el token de refresco cada vez que se use
     'BLACKLIST_AFTER_ROTATION': True,                  # Invalida el token viejo si se rota
