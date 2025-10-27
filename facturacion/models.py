@@ -7,6 +7,15 @@ class Factura(models.Model):
     metodo_pago = models.CharField(max_length=20)
     estado = models.CharField(max_length=30)
     activo = models.BooleanField(default=True)
+    # NUEVO CAMPO - Relación opcional con Paciente
+    paciente = models.ForeignKey(
+        'pacientes.Paciente', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='facturas',
+        verbose_name='Paciente'
+    )
 
     def __str__(self):
         return f"Factura {self.idfactura} - {self.monto_total} {self.estado}"

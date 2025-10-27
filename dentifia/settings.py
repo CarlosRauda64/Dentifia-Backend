@@ -45,10 +45,13 @@ INSTALLED_APPS = [
     'inventario',
     'facturacion',
     'encuestas',
+    'pacientes',
+    'citas',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'django_extensions',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -118,7 +121,7 @@ AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/El_Salvador'
 
 USE_I18N = True
 
@@ -156,6 +159,11 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 # JWT settings
