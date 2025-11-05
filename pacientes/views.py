@@ -7,10 +7,27 @@ from django.db.models import Q
 from .models import Paciente
 from .serializers import PacienteSerializer, PacienteCreateSerializer, PacienteListSerializer, DatosMedicosSerializer
 
+
+class IsDoctorOrReadOnly(permissions.BasePermission):
+    """
+    Permiso personalizado: Solo doctores y administradores pueden crear/editar/eliminar.
+    Secretarias, doctores y administradores pueden leer.
+    """
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        
+        # Lecturas permitidas para doctor, secretaria y administrador
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.rol in ['doctor', 'secretaria', 'administrador']
+        
+        # Escritura solo para doctor y administrador
+        return request.user.rol in ['doctor', 'administrador']
+
 class PacienteViewSet(viewsets.ModelViewSet):
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsDoctorOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Filtros específicos
@@ -89,3 +106,23 @@ class PacienteViewSet(viewsets.ModelViewSet):
             serializer = PacienteListSerializer(pacientes, many=True)
             return Response(serializer.data)
         return Response([])
+
+    def destroy(self, request, *args, **kwargs):
+        """Borrado lógico del paciente con validación de dependencias"""
+        paciente = self.get_object()
+
+        # Validar que no tenga facturas asociadas
+        if paciente.facturas.exists():
+            return Response(
+                {"error": "No es posible eliminar pacientes vinculados a facturas o tratamientos"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Borrado lógico
+        paciente.activo = False
+        paciente.save()
+
+        return Response(
+            {"message": "Paciente eliminado correctamente"},
+            status=status.HTTP_200_OK
+        )
