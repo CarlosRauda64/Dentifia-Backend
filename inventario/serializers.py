@@ -19,6 +19,7 @@ class InsumoParaMovimientoSerializer(serializers.ModelSerializer):
 class Movimiento_stockSerializer(serializers.ModelSerializer):
     # Este campo leerá la información del insumo relacionado usando el serializador auxiliar.
     insumo_data = InsumoParaMovimientoSerializer(source='insumo', read_only=True)
+    fecha = serializers.DateTimeField(format='%d-%m-%y')
 
     class Meta:
         model = Movimiento_stock
