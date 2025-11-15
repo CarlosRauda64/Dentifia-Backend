@@ -13,17 +13,21 @@ class EncuestaViewSet(viewsets.ModelViewSet):
     """
     ViewSet para manejar el CRUD de Encuestas.
     - La lista (GET) muestra todas las encuestas.
+    - Requiere autenticación JWT.
     """
     queryset = Encuesta.objects.all()
     serializer_class = EncuestaSerializer
+    permission_classes = [IsAuthenticated]
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def listar_encuestas(request):
     encuestas = Encuesta.objects.all()
     serializer = EncuestaSerializer(encuestas, many=True)
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def insertar_encuesta(request):
     try:
         serializer = EncuestaSerializer(data=request.data)
@@ -35,6 +39,7 @@ def insertar_encuesta(request):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def eliminar_encuesta(request, encuesta_id):
     try:
         encuesta = get_object_or_404(Encuesta, id=encuesta_id)
