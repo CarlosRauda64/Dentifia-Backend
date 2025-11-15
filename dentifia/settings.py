@@ -30,7 +30,11 @@ SECRET_KEY = 'django-insecure-*5h3)2!&cd#_3l^r8j!44lk7()$0%^tzd#66e)4jxw9_60c_((
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['https://frontend-dentifia.vercel.app/']
+ALLOWED_HOSTS = [
+    'https://frontend-dentifia.vercel.app/',
+    'localhost',
+    '127.0.0.1',
+    ]
 
 # Application definition
 
