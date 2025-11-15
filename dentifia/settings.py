@@ -30,12 +30,7 @@ SECRET_KEY = 'django-insecure-*5h3)2!&cd#_3l^r8j!44lk7()$0%^tzd#66e)4jxw9_60c_((
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
-
-# Lee la variable que ACABAMOS de crear en Render
-MY_ALLOWED_HOST = os.environ.get('DJANGO_ALLOWED_HOST')
-if MY_ALLOWED_HOST:
-    ALLOWED_HOSTS.append(MY_ALLOWED_HOST)
+ALLOWED_HOSTS = ['https://frontend-dentifia.vercel.app/']
 
 # Application definition
 
