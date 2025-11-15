@@ -32,6 +32,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = []
 
+# Lee la variable que ACABAMOS de crear en Render
+MY_ALLOWED_HOST = os.environ.get('DJANGO_ALLOWED_HOST')
+if MY_ALLOWED_HOST:
+    ALLOWED_HOSTS.append(MY_ALLOWED_HOST)
 
 # Application definition
 
