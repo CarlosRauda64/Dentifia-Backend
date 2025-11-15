@@ -1,0 +1,22 @@
+databases:
+  - name: mysitedb
+    plan: free
+    databaseName: mysite
+    user: mysite
+
+services:
+  - type: web
+    plan: free
+    name: mysite
+    runtime: python
+    buildCommand: './build.sh'
+    startCommand: 'python -m gunicorn dentifia.asgi:application -k uvicorn.workers.UvicornWorker'
+    envVars:
+      - key: postgresql://postgres_dsi216_5_user:Tyq1UKDtf4vgg5VIrNkl0X2kqwSJHxGY@dpg-d4c56kur433s73dafbpg-a/postgres_dsi216_5
+        fromDatabase:
+          name: postgres_dsi216=5
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
