@@ -6,6 +6,7 @@ from .views import (
 	NotaProgresoOrtoViewSet,
 	OdontogramaViewSet,
 	OdontogramaVersionViewSet,
+    AnexoViewSet,
 )
 
 
@@ -21,6 +22,7 @@ router.register(
 	OdontogramaVersionViewSet,
 	basename="odontograma-versiones",
 )
+router.register("anexos", AnexoViewSet, basename="anexos")
 
 
 urlpatterns = router.urls
