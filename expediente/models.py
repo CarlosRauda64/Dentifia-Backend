@@ -3,6 +3,7 @@ from django.db import models
 from pacientes.models import Paciente
 from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
 class Expediente(models.Model):
@@ -156,7 +157,13 @@ class Anexo(models.Model):
 		on_delete=models.CASCADE,
 		related_name="anexos",
 	)
-	archivo = models.FileField(upload_to="anexos/%Y/%m/%d/")
+	# Store files directly in Cloudinary (no local copy)
+	archivo = models.FileField(
+		storage=MediaCloudinaryStorage(),
+		upload_to="anexos/%Y/%m/%d/",
+		blank=True,
+		null=True,
+	)
 	nombre_original = models.CharField(max_length=255, blank=True)
 	descripcion = models.TextField(blank=True)
 	uploaded_by = models.ForeignKey(

@@ -24,3 +24,5 @@ Thumbs.db
 # Archivos de logs
 *.log
 .filecommand/
+
+.env

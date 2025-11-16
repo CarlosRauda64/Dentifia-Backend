@@ -4,6 +4,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+import cloudinary.api
+from cloudinary import CloudinaryImage
+import requests
 
 from .models import (
 	Expediente,
@@ -144,8 +147,94 @@ class AnexoViewSet(viewsets.ModelViewSet):
 	http_method_names = ["get", "post", "delete", "head", "options"]
 
 	def perform_create(self, serializer):
-		# attach uploader from request user if available
+		# If an uploaded file is present, ensure nombre_original is set from the file
+		archivo = None
+		if hasattr(self.request, "FILES"):
+			archivo = self.request.FILES.get("archivo")
+		# Prepare save kwargs
+		save_kwargs = {}
+		if archivo and not serializer.validated_data.get("nombre_original"):
+			save_kwargs["nombre_original"] = getattr(archivo, "name", None)
 		if hasattr(self.request, "user") and self.request.user and self.request.user.is_authenticated:
-			serializer.save(uploaded_by=self.request.user)
-		else:
-			serializer.save()
+			save_kwargs["uploaded_by"] = self.request.user
+		# Saving will use the field's storage (Cloudinary) because the FileField uses MediaCloudinaryStorage
+		serializer.save(**save_kwargs)
+
+	def create(self, request, *args, **kwargs):
+		"""Override create to return a JSON error when an exception occurs (e.g., Cloudinary auth)."""
+		try:
+			return super().create(request, *args, **kwargs)
+		except Exception as exc:
+			# Return a JSON response with the error message instead of the Django debug HTML page
+			return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+
+	@action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+	def download_url(self, request, pk=None):
+		"""Return a JSON object with the Cloudinary URL and a filename for the requested Anexo.
+
+		This endpoint requires authentication. The frontend should call this endpoint with the
+		user's bearer token, receive the URL in the JSON response, and then use that URL to
+		open or download the file directly from Cloudinary (no Authorization header required
+		when fetching the Cloudinary URL itself).
+		"""
+		anexo = self.get_object()
+		url = None
+		filename = anexo.nombre_original if getattr(anexo, "nombre_original", None) else None
+
+		if getattr(anexo, "archivo", None):
+			public_id = anexo.archivo.name
+			# Try to detect resource info (type/format) to build a proper signed URL
+			resource_type = "authenticated"
+			fmt = None
+			try:
+				info = cloudinary.api.resource(public_id)
+				# prefer 'resource_type' key, fallback to 'type'
+				resource_type = info.get("resource_type") or info.get("type") or resource_type
+				fmt = info.get("format")
+			except Exception:
+				# If API lookup fails, fall back to 'authenticated' and no format
+				pass
+
+			# Try several candidate types and validate the signed URL by doing a HEAD
+			candidates = []
+			tried_types = [resource_type, "authenticated", "private", "upload"]
+			# choose resource_type for building URL: PDFs and raw resources need 'raw'
+			options_base = {
+				"resource_type": "raw" if (fmt == "pdf" or resource_type == "raw") else "auto",
+				"secure": True,
+				"sign_url": True,
+			}
+			if fmt and resource_type != "raw":
+				# include explicit format for image/video resources
+				options_base["format"] = fmt
+
+			for t in tried_types:
+				if not t:
+					continue
+				options = dict(options_base)
+				options["type"] = t
+				try:
+					candidate = CloudinaryImage(public_id).build_url(**options)
+					# Validate the candidate URL by requesting HEAD
+					try:
+						rs = requests.head(candidate, allow_redirects=True, timeout=10)
+						if rs.status_code == 200:
+							url = candidate
+							break
+						# some CDN responses may return 302 -> follow redirects above
+					except Exception:
+						# ignore validation errors and try next type
+						continue
+				except Exception:
+					continue
+
+			# If none validated, fallback to stored URL
+			if not url:
+				try:
+					url = anexo.archivo.url
+				except Exception:
+					url = None
+
+		return Response({"url": url, "filename": filename})
+
+
