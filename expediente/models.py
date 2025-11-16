@@ -1,6 +1,8 @@
 from django.db import models
 
 from pacientes.models import Paciente
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
 
 
 class Expediente(models.Model):
@@ -146,3 +148,58 @@ class OdontogramaDetalle(models.Model):
 			models.Index(fields=["pieza_numero"]),
 		]
 		unique_together = ("version", "pieza_numero", "cara", "condicion")
+
+
+class Anexo(models.Model):
+	expediente = models.ForeignKey(
+		Expediente,
+		on_delete=models.CASCADE,
+		related_name="anexos",
+	)
+	archivo = models.FileField(upload_to="anexos/%Y/%m/%d/")
+	nombre_original = models.CharField(max_length=255, blank=True)
+	descripcion = models.TextField(blank=True)
+	uploaded_by = models.ForeignKey(
+		"usuarios.Usuario",
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="anexos_subidos",
+	)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"Anexo {self.id} - {self.expediente.numero_expediente}"
+
+	class Meta:
+		ordering = ["-created_at"]
+		indexes = [models.Index(fields=["expediente"]), models.Index(fields=["created_at"])]
+
+
+
+@receiver(post_delete, sender=Anexo)
+def delete_anexo_file(sender, instance, **kwargs):
+	"""Elimina el archivo del storage cuando se borra el Anexo."""
+	if instance.archivo:
+		try:
+			instance.archivo.delete(save=False)
+		except Exception:
+			pass
+
+
+@receiver(pre_save, sender=Anexo)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+	"""Elimina el archivo anterior del storage al actualizar el campo archivo."""
+	if not instance.pk:
+		return
+	try:
+		old = Anexo.objects.get(pk=instance.pk)
+	except Anexo.DoesNotExist:
+		return
+	old_file = old.archivo
+	new_file = instance.archivo
+	if not old_file == new_file:
+		try:
+			old_file.delete(save=False)
+		except Exception:
+			pass
