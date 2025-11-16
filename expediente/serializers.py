@@ -161,3 +161,19 @@ class ExpedienteDetailSerializer(ExpedienteSerializer):
             "fichas_ortodoncia",
             "odontograma",
         ]
+
+
+class AnexoSerializer(serializers.ModelSerializer):
+    archivo = serializers.FileField()
+
+    class Meta:
+        model = None
+        # set model dynamically to avoid circular import issues
+        fields = ["id", "expediente", "archivo", "nombre_original", "descripcion", "uploaded_by", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # import here to avoid circular import
+        from .models import Anexo
+        self.Meta.model = Anexo

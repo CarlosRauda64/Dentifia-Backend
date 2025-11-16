@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import filters, permissions, status, viewsets
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,6 +11,7 @@ from .models import (
 	NotaProgresoOrto,
 	Odontograma,
 	OdontogramaVersion,
+    Anexo,
 )
 from .serializers import (
 	ExpedienteDetailSerializer,
@@ -19,6 +21,7 @@ from .serializers import (
 	OdontogramaSerializer,
 	OdontogramaVersionCreateSerializer,
 	OdontogramaVersionSerializer,
+    AnexoSerializer,
 )
 
 
@@ -128,3 +131,21 @@ class OdontogramaVersionViewSet(viewsets.ModelViewSet):
 	@transaction.atomic
 	def perform_create(self, serializer):
 		serializer.save()
+
+
+class AnexoViewSet(viewsets.ModelViewSet):
+	queryset = Anexo.objects.select_related("expediente").order_by("-created_at")
+	serializer_class = AnexoSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	parser_classes = [MultiPartParser, FormParser]
+	filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+	filterset_fields = ["expediente"]
+	search_fields = ["nombre_original", "descripcion"]
+	http_method_names = ["get", "post", "delete", "head", "options"]
+
+	def perform_create(self, serializer):
+		# attach uploader from request user if available
+		if hasattr(self.request, "user") and self.request.user and self.request.user.is_authenticated:
+			serializer.save(uploaded_by=self.request.user)
+		else:
+			serializer.save()
