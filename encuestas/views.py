@@ -27,8 +27,11 @@ def listar_encuestas(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def insertar_encuesta(request):
+    """
+    Endpoint público para crear encuestas de satisfacción.
+    No requiere autenticación JWT.
+    """
     try:
         serializer = EncuestaSerializer(data=request.data)
         if serializer.is_valid():
