@@ -164,12 +164,22 @@ class ExpedienteDetailSerializer(ExpedienteSerializer):
 
 
 class AnexoSerializer(serializers.ModelSerializer):
-    archivo = serializers.FileField()
+    archivo = serializers.FileField(required=False, allow_null=True)
+    archivo_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = None
         # set model dynamically to avoid circular import issues
-        fields = ["id", "expediente", "archivo", "nombre_original", "descripcion", "uploaded_by", "created_at"]
+        fields = [
+            "id",
+            "expediente",
+            "archivo",
+            "archivo_url",
+            "nombre_original",
+            "descripcion",
+            "uploaded_by",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
     def __init__(self, *args, **kwargs):
@@ -177,3 +187,11 @@ class AnexoSerializer(serializers.ModelSerializer):
         # import here to avoid circular import
         from .models import Anexo
         self.Meta.model = Anexo
+
+    def get_archivo_url(self, obj):
+        try:
+            if obj and getattr(obj, "archivo", None):
+                return obj.archivo.url
+        except Exception:
+            return None
+        return None

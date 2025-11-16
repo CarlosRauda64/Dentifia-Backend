@@ -14,6 +14,11 @@ from pathlib import Path
 from corsheaders.defaults import default_methods 
 from corsheaders.defaults import default_headers
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+
+# Load .env file if present (keeps credentials out of the repo)
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,6 +58,12 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_extensions',
     'django_filters',
+]
+
+# Cloudinary apps (storage backend)
+INSTALLED_APPS += [
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +149,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Cloudinary configuration - read from environment variables
+# Set these in your environment or in a local `.env` file:
+# CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+# Use Cloudinary as default storage for media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # CORS settings
 # ESTO SOLO PARA EL ENTORNO DE DESARROLLO, NO PARA PRODUCCIÓN
