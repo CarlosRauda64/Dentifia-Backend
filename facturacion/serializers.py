@@ -28,7 +28,7 @@ class FacturaSerializer(serializers.ModelSerializer):
             DetalleFactura.objects.create(factura=factura, **detalle_data)
         return factura
 
-    def update(self, instance, validated_data):  # 👈 Este método debe estar al mismo nivel que create
+    def update(self, instance, validated_data):
         detalles_data = validated_data.pop('detalles', [])
 
         # Actualiza los campos de la factura
